@@ -17,9 +17,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           <span class="icon">⬢</span>
           Dashboard
         </a>
-        <a class="nav-item">
+        <a routerLink="/namespace-explorer" routerLinkActive="active" class="nav-item">
           <span class="icon">⌬</span>
-          Remote Config
+          Namespace Explorer
         </a>
         <a class="nav-item">
           <span class="icon">📜</span>
