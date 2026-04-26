@@ -110,14 +110,14 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
               <div class="validation-list">
                 <div class="validation-item" *ngFor="let key of mandatoryKeys">
                   <div class="key-info">
-                    <span class="status-icon" [class.valid]="selectedSoul()?.config?.[key]">
+                    <span class="status-icon" [class.valid]="$any(selectedSoul()?.config)?.[key]">
                       {{ selectedSoul()?.config?.[key] ? '✓' : '✗' }}
                     </span>
                     <span class="key-name">{{ key }}</span>
                   </div>
-                  <div class="key-value" *ngIf="selectedSoul()?.config?.[key]; else missingValue">
+                  <div class="key-value" *ngIf="$any(selectedSoul()?.config)?.[key]; else missingValue">
                     <textarea class="edit-area" 
-                              [value]="selectedSoul()?.config?.[key]"
+                              [value]="$any(selectedSoul()?.config)?.[key]"
                               (blur)="updateField(key, $any($event.target).value)"></textarea>
                   </div>
                   <ng-template #missingValue>
