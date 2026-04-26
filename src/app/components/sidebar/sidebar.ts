@@ -25,9 +25,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           <span class="icon">📜</span>
           Blueprints
         </a>
-        <a class="nav-item">
+        <a routerLink="/silhouette-studio" routerLinkActive="active" class="nav-item">
+          <span class="icon">⚡️</span>
+          Silhouette Studio
+        </a>
+        <a routerLink="/sprite-cutter" routerLinkActive="active" class="nav-item">
           <span class="icon">✂️</span>
-          Asset Workbench
+          Sprite Cutter
         </a>
       </nav>
       
