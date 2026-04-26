@@ -21,9 +21,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           <span class="icon">⌬</span>
           Namespace Explorer
         </a>
-        <a class="nav-item">
+        <a routerLink="/blueprint-lab" routerLinkActive="active" class="nav-item">
           <span class="icon">📜</span>
-          Blueprints
+          Blueprints Lab
         </a>
         <a routerLink="/silhouette-studio" routerLinkActive="active" class="nav-item">
           <span class="icon">⚡️</span>
