@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BlueprintService, GenreSoul } from '../../services/blueprint.service';
 import { NamespaceService } from '../../services/namespace.service';
 import { GeminiService } from '../../services/gemini.service';
+import { StagingService } from '../../services/staging.service';
 import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
 
 @Component({
@@ -97,6 +98,11 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
                 <div class="ai-header">
                   <span class="icon">✨</span>
                   <span>Gemini Auditor Suggestions</span>
+                  <button class="btn btn-primary btn-xs apply-ai" 
+                          *ngIf="suggestedChanges"
+                          (click)="applyAiSuggestions()">
+                    Apply Suggested Soul
+                  </button>
                 </div>
                 <div class="ai-content">{{ aiResult() }}</div>
               </div>
@@ -110,7 +116,9 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
                     <span class="key-name">{{ key }}</span>
                   </div>
                   <div class="key-value" *ngIf="selectedSoul()?.config?.[key]; else missingValue">
-                    {{ selectedSoul()?.config?.[key] }}
+                    <textarea class="edit-area" 
+                              [value]="selectedSoul()?.config?.[key]"
+                              (blur)="updateField(key, $any($event.target).value)"></textarea>
                   </div>
                   <ng-template #missingValue>
                     <div class="key-value missing">Field missing in Remote Config</div>
@@ -368,6 +376,32 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
       white-space: pre-wrap;
     }
 
+    .apply-ai {
+      margin-left: auto;
+      background: var(--primary-gradient);
+      font-size: 10px;
+    }
+
+    .edit-area {
+      width: 100%;
+      min-height: 80px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 6px;
+      color: white;
+      padding: 0.75rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      resize: vertical;
+      transition: all 0.3s;
+    }
+
+    .edit-area:focus {
+      outline: none;
+      border-color: var(--sagas-red);
+      background: rgba(0,0,0,0.5);
+    }
+
     .health-chip {
       background: rgba(16, 185, 129, 0.1);
       color: #10b981;
@@ -466,12 +500,14 @@ export class BlueprintLab implements OnInit {
   protected blueprintService = inject(BlueprintService);
   protected namespaceService = inject(NamespaceService);
   protected geminiService = inject(GeminiService);
+  protected stagingService = inject(StagingService);
   
   protected selectedSoul = signal<GenreSoul | null>(null);
   protected readonly mandatoryKeys = MANDATORY_GENRE_KEYS;
 
   protected aiLoading = signal(false);
   protected aiResult = signal<string | null>(null);
+  protected suggestedChanges: any = null;
 
   ngOnInit() {
     this.refreshAll();
@@ -484,6 +520,7 @@ export class BlueprintLab implements OnInit {
 
   selectSoul(soul: GenreSoul) {
     this.aiResult.set(null);
+    this.suggestedChanges = null;
     this.selectedSoul.set(soul);
   }
 
@@ -493,12 +530,46 @@ export class BlueprintLab implements OnInit {
 
     this.aiLoading.set(true);
     this.aiResult.set(null);
+    this.suggestedChanges = null;
     
     try {
       const result = await this.geminiService.auditGenre(soul.name, soul.config);
       this.aiResult.set(result);
+      
+      // Try to parse suggested changes
+      const jsonMatch = result.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[1]);
+          this.suggestedChanges = parsed.SUGGESTED_CHANGES;
+        } catch (e) {
+          console.warn('Failed to parse suggested changes JSON');
+        }
+      }
     } finally {
       this.aiLoading.set(false);
     }
+  }
+
+  applyAiSuggestions() {
+    if (!this.suggestedChanges || !this.selectedSoul()) return;
+    
+    const soul = this.selectedSoul()!;
+    const genreKey = `${soul.name}_config`;
+    
+    const updatedConfig = { ...soul.config, ...this.suggestedChanges };
+    this.stagingService.updateDraft(genreKey, JSON.stringify(updatedConfig));
+    
+    alert('AI Suggestions applied to your Staging Draft! Check the Sync page to push.');
+  }
+
+  updateField(key: string, value: string) {
+    const soul = this.selectedSoul();
+    if (!soul) return;
+
+    const genreKey = `${soul.name}_config`;
+    const updatedConfig = { ...soul.config, [key]: value };
+    
+    this.stagingService.updateDraft(genreKey, JSON.stringify(updatedConfig));
   }
 }

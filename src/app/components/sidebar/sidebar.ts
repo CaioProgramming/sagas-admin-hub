@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { StagingService } from '../../services/staging.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
     <aside class="sidebar">
       <div class="brand">
@@ -32,6 +34,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         <a routerLink="/sprite-cutter" routerLinkActive="active" class="nav-item">
           <span class="icon">✂️</span>
           Sprite Cutter
+        </a>
+        
+        <div class="nav-divider"></div>
+        
+        <a routerLink="/staging" routerLinkActive="active" class="nav-item sync-nav">
+          <span class="icon">🚀</span>
+          Sync
+          <span class="badge" *ngIf="staging.getModifiedKeys().length > 0">
+            {{ staging.getModifiedKeys().length }}
+          </span>
         </a>
       </nav>
       
@@ -129,6 +141,28 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       justify-content: center;
       font-weight: bold;
     }
+    .nav-divider {
+      height: 1px;
+      background: var(--outline-ghost);
+      margin: 1rem 0;
+    }
+
+    .sync-nav {
+      position: relative;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: var(--sagas-red);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      font-weight: 800;
+      box-shadow: 0 0 10px rgba(139, 38, 53, 0.4);
+    }
   `]
 })
-export class Sidebar {}
+export class Sidebar {
+  staging = inject(StagingService);
+}

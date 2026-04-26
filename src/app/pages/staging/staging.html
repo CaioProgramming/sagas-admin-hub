@@ -1,0 +1,43 @@
+<div class="staging-container">
+  <header class="staging-header">
+    <div class="title-group">
+      <h1>🚀 Production Sync</h1>
+      <p>Review and publish your staging changes to Firebase Remote Config.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" (click)="discard()" [disabled]="modifiedKeys.length === 0">Discard All</button>
+      <button class="btn-primary" (click)="push()" [disabled]="modifiedKeys.length === 0 || isPushing">
+        {{ isPushing ? 'Pushing...' : 'Push to Production' }}
+      </button>
+    </div>
+  </header>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="changes-summary" *ngIf="modifiedKeys.length > 0; else noChanges">
+    <div class="change-card" *ngFor="let key of modifiedKeys">
+      <div class="change-header">
+        <span class="key-name">{{ key }}</span>
+        <span class="badge badge-modified">MODIFIED</span>
+      </div>
+      <div class="diff-view">
+        <p>This parameter has been updated in your staging draft.</p>
+        <!-- In a future iteration, we could add a full JSON diff here -->
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noChanges>
+    <div class="empty-state">
+      <span class="icon">✅</span>
+      <h2>Perfectly Synced</h2>
+      <p>Your local staging area matches production. No changes to push.</p>
+    </div>
+  </ng-template>
+</div>

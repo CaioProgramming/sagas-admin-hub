@@ -4,6 +4,7 @@ import { SilhouetteStudio } from './pages/silhouette-studio/silhouette-studio';
 import { SpriteCutter } from './pages/sprite-cutter/sprite-cutter';
 import { NamespaceExplorer } from './pages/namespace-explorer/namespace-explorer';
 import { BlueprintLab } from './pages/blueprint-lab/blueprint-lab';
+import { Staging } from './pages/staging/staging';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'namespace-explorer', component: NamespaceExplorer },
   { path: 'blueprint-lab', component: BlueprintLab },
   { path: 'silhouette-studio', component: SilhouetteStudio },
-  { path: 'sprite-cutter', component: SpriteCutter }
+  { path: 'sprite-cutter', component: SpriteCutter },
+  { path: 'staging', component: Staging }
 ];

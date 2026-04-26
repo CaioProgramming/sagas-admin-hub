@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Sidebar } from './components/sidebar/sidebar';
+import { StagingService } from './services/staging.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Sidebar],
+  imports: [RouterOutlet, CommonModule, Sidebar],
   template: `
     <div class="admin-shell">
       <app-sidebar></app-sidebar>
@@ -23,10 +25,16 @@ import { Sidebar } from './components/sidebar/sidebar';
 
     .content-area {
       flex-grow: 1;
-      padding: 2rem;
+      padding: 0;
       overflow-y: auto;
-      background: radial-gradient(circle at 10% 10%, #1a0a0c 0%, var(--bg-color) 40%);
+      background: var(--bg-color);
     }
   `]
 })
-export class App {}
+export class App implements OnInit {
+  staging = inject(StagingService);
+
+  ngOnInit() {
+    this.staging.init();
+  }
+}
