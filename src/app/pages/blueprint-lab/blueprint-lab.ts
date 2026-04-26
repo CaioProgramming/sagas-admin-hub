@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BlueprintService, GenreSoul } from '../../services/blueprint.service';
 import { NamespaceService } from '../../services/namespace.service';
+import { GeminiService } from '../../services/gemini.service';
 import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
 
 @Component({
@@ -78,10 +79,26 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
             <!-- Right: Validation Details -->
             <div class="soul-details">
               <div class="details-header">
-                <h2>{{ selectedSoul()?.name }} Soul Architecture</h2>
-                <div class="health-chip" [class.low]="selectedSoul()!.health < 80">
-                  {{ selectedSoul()?.health }}% Integrity
+                <div class="title-wrap">
+                  <h2>{{ selectedSoul()?.name }} Soul Architecture</h2>
+                  <div class="health-chip" [class.low]="selectedSoul()!.health < 80">
+                    {{ selectedSoul()?.health }}% Integrity
+                  </div>
                 </div>
+                <button class="btn btn-secondary btn-sm ai-btn" 
+                        (click)="runAiAudit()" 
+                        [disabled]="aiLoading()">
+                  {{ aiLoading() ? 'Analyzing...' : '🪄 AI Audit Soul' }}
+                </button>
+              </div>
+
+              <!-- AI Results -->
+              <div class="ai-results glass-card" *ngIf="aiResult()">
+                <div class="ai-header">
+                  <span class="icon">✨</span>
+                  <span>Gemini Auditor Suggestions</span>
+                </div>
+                <div class="ai-content">{{ aiResult() }}</div>
               </div>
 
               <div class="validation-list">
@@ -315,7 +332,40 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
     .details-header {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .ai-btn {
+      border-color: var(--purple);
+      color: #a78bfa;
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .ai-results {
+      padding: 1.5rem;
+      background: rgba(139, 92, 246, 0.05);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      margin-bottom: 2rem;
+      border-radius: 12px;
+    }
+
+    .ai-header {
+      display: flex;
       align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #a78bfa;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .ai-content {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
     }
 
     .health-chip {
@@ -415,9 +465,13 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
 export class BlueprintLab implements OnInit {
   protected blueprintService = inject(BlueprintService);
   protected namespaceService = inject(NamespaceService);
+  protected geminiService = inject(GeminiService);
   
   protected selectedSoul = signal<GenreSoul | null>(null);
   protected readonly mandatoryKeys = MANDATORY_GENRE_KEYS;
+
+  protected aiLoading = signal(false);
+  protected aiResult = signal<string | null>(null);
 
   ngOnInit() {
     this.refreshAll();
@@ -429,6 +483,22 @@ export class BlueprintLab implements OnInit {
   }
 
   selectSoul(soul: GenreSoul) {
+    this.aiResult.set(null);
     this.selectedSoul.set(soul);
+  }
+
+  async runAiAudit() {
+    const soul = this.selectedSoul();
+    if (!soul) return;
+
+    this.aiLoading.set(true);
+    this.aiResult.set(null);
+    
+    try {
+      const result = await this.geminiService.auditGenre(soul.name, soul.config);
+      this.aiResult.set(result);
+    } finally {
+      this.aiLoading.set(false);
+    }
   }
 }
