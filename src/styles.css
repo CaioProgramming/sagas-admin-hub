@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@500;600;700;800&display=swap');
+
+:root {
+  /* Colors */
+  --bg-color: #0A0A0A;
+  --surface-color: #131313;
+  --surface-low: #1C1B1B;
+  --surface-high: #2A2A2A;
+  --surface-highest: #353534;
+  --surface-lowest: #0E0E0E;
+  
+  --primary-color: #FFB2B6;
+  --sagas-red: #8B2635;
+  --on-primary: #65061C;
+  
+  --text-primary: #E5E2E1;
+  --text-secondary: #DDC0C0;
+  
+  --outline: #564242;
+  --outline-ghost: rgba(86, 66, 66, 0.15);
+  
+  --tertiary: #8DD5B2;
+  
+  /* Spacing & Borders */
+  --radius-default: 4px;
+  --radius-sm: 2px;
+  
+  /* Fonts */
+  --font-display: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Glassmorphism utility */
+.glass-card {
+  background: rgba(14, 14, 14, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--outline-ghost);
+  border-radius: var(--radius-default);
+  padding: 1.5rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-highest);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sagas-red);
+}
