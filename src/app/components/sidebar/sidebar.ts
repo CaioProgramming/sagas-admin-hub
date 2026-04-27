@@ -10,35 +10,35 @@ import { StagingService } from '../../services/staging.service';
   template: `
     <aside class="sidebar">
       <div class="brand">
-        <img src="logo.svg" alt="Sagas Spark" class="logo">
+        <img src="/logo.svg" alt="Sagas Spark" class="logo">
         <span class="brand-name">SAGAS HUB</span>
       </div>
       
       <nav class="nav-links">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
           <span class="icon">⬢</span>
           Dashboard
         </a>
-        <a routerLink="/namespace-explorer" routerLinkActive="active" class="nav-item">
+        <a routerLink="/admin/namespace-explorer" routerLinkActive="active" class="nav-item">
           <span class="icon">⌬</span>
           Namespace Explorer
         </a>
-        <a routerLink="/blueprint-lab" routerLinkActive="active" class="nav-item">
+        <a routerLink="/admin/blueprint-lab" routerLinkActive="active" class="nav-item">
           <span class="icon">📜</span>
           Blueprints Lab
         </a>
-        <a routerLink="/silhouette-studio" routerLinkActive="active" class="nav-item">
+        <a routerLink="/admin/silhouette-studio" routerLinkActive="active" class="nav-item">
           <span class="icon">⚡️</span>
           Silhouette Studio
         </a>
-        <a routerLink="/sprite-cutter" routerLinkActive="active" class="nav-item">
+        <a routerLink="/admin/sprite-cutter" routerLinkActive="active" class="nav-item">
           <span class="icon">✂️</span>
           Sprite Cutter
         </a>
         
         <div class="nav-divider"></div>
         
-        <a routerLink="/staging" routerLinkActive="active" class="nav-item sync-nav">
+        <a routerLink="/admin/staging" routerLinkActive="active" class="nav-item sync-nav">
           <span class="icon">🚀</span>
           Sync
           <span class="badge" *ngIf="staging.getModifiedKeys().length > 0">

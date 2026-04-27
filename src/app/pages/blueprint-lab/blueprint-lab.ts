@@ -1,10 +1,20 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BlueprintService, GenreSoul } from '../../services/blueprint.service';
+import { GenreConfigService } from '../../services/genre-config.service';
+import { RemoteConfigService } from '../../services/remote-config.service';
 import { NamespaceService } from '../../services/namespace.service';
 import { GeminiService } from '../../services/gemini.service';
 import { StagingService } from '../../services/staging.service';
-import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
+import { GenreConfig, MANDATORY_GENRE_KEYS } from '../../models/genre-config';
+
+interface GenreSoul {
+  id: string;
+  name: string;
+  config: GenreConfig;
+  health: number;
+  isFound: boolean;
+  missingKeys: string[];
+}
 
 @Component({
   selector: 'app-blueprint-lab',
@@ -26,12 +36,12 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
       <section class="souls-section">
         <div class="section-title">
           <h2>Active Genre Souls</h2>
-          <span class="badge">{{ blueprintService.genres().length }} Definitive Genres</span>
+          <span class="badge">{{ souls().length }} Definitive Genres</span>
         </div>
 
         <div class="souls-grid">
           <div class="soul-card glass-card" 
-               *ngFor="let soul of blueprintService.genres()"
+               *ngFor="let soul of souls()"
                [class.missing]="!soul.isFound"
                (click)="soul.isFound && selectSoul(soul)">
             
@@ -111,14 +121,14 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
                 <div class="validation-item" *ngFor="let key of mandatoryKeys">
                   <div class="key-info">
                     <span class="status-icon" [class.valid]="$any(selectedSoul()?.config)?.[key]">
-                      {{ selectedSoul()?.config?.[key] ? '✓' : '✗' }}
+                      {{ $any(selectedSoul()?.config)?.[key] ? '✓' : '✗' }}
                     </span>
                     <span class="key-name">{{ key }}</span>
                   </div>
                   <div class="key-value" *ngIf="$any(selectedSoul()?.config)?.[key]; else missingValue">
                     <textarea class="edit-area" 
-                              [value]="$any(selectedSoul()?.config)?.[key]"
-                              (blur)="updateField(key, $any($event.target).value)"></textarea>
+                               [value]="$any(selectedSoul()?.config)?.[key]"
+                               (blur)="updateField(key, $any($event.target).value)"></textarea>
                   </div>
                   <ng-template #missingValue>
                     <div class="key-value missing">Field missing in Remote Config</div>
@@ -374,6 +384,7 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
       line-height: 1.6;
       color: var(--text-secondary);
       white-space: pre-wrap;
+      word-break: break-all;
     }
 
     .apply-ai {
@@ -467,6 +478,7 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
       color: var(--text-primary);
       white-space: pre-wrap;
       word-break: break-all;
+      word-wrap: break-word;
     }
 
     .key-value.missing {
@@ -497,7 +509,8 @@ import { MANDATORY_GENRE_KEYS } from '../../models/genre-config';
   `]
 })
 export class BlueprintLab implements OnInit {
-  protected blueprintService = inject(BlueprintService);
+  protected genreConfigService = inject(GenreConfigService);
+  protected remoteConfigService = inject(RemoteConfigService);
   protected namespaceService = inject(NamespaceService);
   protected geminiService = inject(GeminiService);
   protected stagingService = inject(StagingService);
@@ -509,13 +522,31 @@ export class BlueprintLab implements OnInit {
   protected aiResult = signal<string | null>(null);
   protected suggestedChanges: any = null;
 
+  souls = computed(() => {
+    const genresDict = this.genreConfigService.genres();
+    return Object.entries(genresDict).map(([id, config]) => {
+      const missingKeys = this.mandatoryKeys.filter((k: keyof GenreConfig) => !config[k]);
+      const health = Math.floor(100 - (missingKeys.length * (100 / this.mandatoryKeys.length)));
+      
+      return {
+        id,
+        name: id.toUpperCase(),
+        config,
+        health,
+        isFound: true, // If it's in the dict, it's found
+        missingKeys
+      } as GenreSoul;
+    });
+  });
+
   ngOnInit() {
     this.refreshAll();
   }
 
   async refreshAll() {
     await this.namespaceService.refreshTemplate();
-    this.blueprintService.syncBlueprints();
+    await this.remoteConfigService.fetchAndActivate();
+    await this.genreConfigService.syncGenreConfigs();
   }
 
   selectSoul(soul: GenreSoul) {
@@ -555,7 +586,7 @@ export class BlueprintLab implements OnInit {
     if (!this.suggestedChanges || !this.selectedSoul()) return;
     
     const soul = this.selectedSoul()!;
-    const genreKey = `${soul.name}_config`;
+    const genreKey = `${soul.id}_config`;
     
     const updatedConfig = { ...soul.config, ...this.suggestedChanges };
     this.stagingService.updateDraft(genreKey, JSON.stringify(updatedConfig));
@@ -563,11 +594,11 @@ export class BlueprintLab implements OnInit {
     alert('AI Suggestions applied to your Staging Draft! Check the Sync page to push.');
   }
 
-  updateField(key: string, value: string) {
+  updateField(key: keyof GenreConfig, value: string) {
     const soul = this.selectedSoul();
     if (!soul) return;
 
-    const genreKey = `${soul.name}_config`;
+    const genreKey = `${soul.id}_config`;
     const updatedConfig = { ...soul.config, [key]: value };
     
     this.stagingService.updateDraft(genreKey, JSON.stringify(updatedConfig));

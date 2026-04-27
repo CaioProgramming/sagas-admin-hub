@@ -1,0 +1,36 @@
+<div class="welcome-container">
+  <div class="content-box glass-card">
+    <div class="brand">
+      <img src="/logo.svg" alt="Sagas Spark" class="welcome-logo">
+      <h1>SAGAS ADMIN HUB</h1>
+    </div>
+
+    <p class="description">
+      The Cosmic Forge is locked. This interface is reserved for the Weavers of Destiny.
+    </p>
+
+    <div class="actions">
+      <button class="btn btn-primary" (click)="tryEnter()">Enter the Forge</button>
+      
+      <div class="provision-area" *ngIf="!generatedPubKey()">
+        <p class="hint">Machine not provisioned? <a (click)="provisionMachine()">Generate Soul Key</a></p>
+      </div>
+    </div>
+
+    <div class="pubkey-display" *ngIf="generatedPubKey()">
+      <div class="alert alert-success">
+        <h3>✅ Key Generated Successfully</h3>
+        <p>Your private key is now locked in this browser's secure vault.</p>
+      </div>
+      
+      <label>Step 2: Add this Public Key to Firebase Remote Config</label>
+      <div class="copy-box">
+        <code>{{ generatedPubKey() }}</code>
+      </div>
+      <p class="warning">
+        ⚠️ Add this to the flag <strong>HUB_ADMIN_PUBKEY</strong> in Remote Config.
+      </p>
+      <button class="btn btn-secondary" (click)="generatedPubKey.set(null)">Done</button>
+    </div>
+  </div>
+</div>
