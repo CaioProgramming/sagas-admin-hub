@@ -171,6 +171,10 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
       display: block;
       font-family: var(--font-display);
       overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
     }
 
     .landing-container { position: relative; min-height: 100vh; }
@@ -197,7 +201,7 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
     @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.6); } 50% { opacity: 0.8; transform: scale(1.1); } }
 
     .top-nav { 
-      position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%) translateY(-150%);
+      position: fixed; top: calc(1.5rem + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%) translateY(-150%);
       width: 90vw; max-width: 1200px; padding: 0.8rem 2.5rem; z-index: 100; 
       display: flex; align-items: center; justify-content: space-between;
       background: rgba(15, 15, 15, 0.4);
@@ -533,21 +537,22 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
       .section-navigation { display: none; }
       
       section { padding: 0 5vw; }
-      .display-lg { font-size: 3.5rem; }
-      .display-md { font-size: 2.2rem; }
-      .section-desc { font-size: 1.1rem; }
+      .display-lg { font-size: clamp(2rem, 10vw, 3rem); }
+      .display-md { font-size: 1.8rem; }
+      .section-desc { font-size: 1rem; }
       
       .split-layout { flex-direction: column !important; text-align: center; gap: 4rem; }
       .split-layout .monolith-text { align-items: center; }
       
-      .hero-spark-container { height: 120px; }
-      .genre-icon-mask { width: 60px; height: 60px; }
+      .hero-spark-container { height: 100px; }
+      .genre-icon-mask { width: 50px; height: 50px; }
       
-      .btn-download { padding: 1.4rem 3rem; font-size: 1.1rem; }
+      .btn-download { padding: 1.2rem 2.5rem; font-size: 1rem; margin-top: 4rem; }
       
-      .typewriter-title { white-space: normal; text-align: center; }
+      .typewriter-title { white-space: normal; text-align: center; width: 100%; display: block; }
       .placeholder { display: none; }
-      .typing-content { position: relative; display: block; }
+      .typing-content { position: relative; display: inline; white-space: normal; }
+      .cursor { display: none; }
     }
   `]
 })
