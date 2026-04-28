@@ -87,7 +87,7 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
         <section class="experience-block carousel-block" #diversitySection id="diversity">
           <div class="ambient-glow" [style.background]="'radial-gradient(circle at 50% 50%, ' + currentNebulaColor() + '25 0%, transparent 70%)'"></div>
           <div class="monolith-text" [class.is-revealed]="diversityRevealed()">
-            <h2 class="section-tag" [style.color]="currentNebulaColor()">{{ ts.t('diversity_tag') }}</h2>
+            <h2 class="section-tag">{{ ts.t('diversity_tag') }}</h2>
             <h3 class="display-md">{{ ts.t('diversity_title') }}</h3>
             <p class="section-desc">{{ ts.t('diversity_desc') }}</p>
             
@@ -98,7 +98,7 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
         <section class="experience-block" #deepnessSection id="deepness">
           <div class="split-layout">
             <div class="monolith-text" [class.is-revealed]="deepnessRevealed()">
-              <h2 class="section-tag" [style.color]="currentNebulaColor()">{{ ts.t('deepness_tag') }}</h2>
+              <h2 class="section-tag">{{ ts.t('deepness_tag') }}</h2>
               <h3 class="display-md">{{ ts.t('deepness_title') }}</h3>
               <div class="persona-tag">{{ ts.t('deepness_persona') }}</div>
               <p class="section-desc">{{ ts.t('deepness_desc') }}</p>
@@ -117,7 +117,7 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
               <app-soul-mirror></app-soul-mirror>
             </div>
             <div class="monolith-text" [class.is-revealed]="mirrorRevealed()">
-              <h2 class="section-tag" [style.color]="currentNebulaColor()">{{ ts.t('mirror_tag') }}</h2>
+              <h2 class="section-tag">{{ ts.t('mirror_tag') }}</h2>
               <h3 class="display-md mirror-title-animate">
                 <span *ngFor="let word of mirrorTitleWords(); let i = index"
                       class="mirror-word"
@@ -132,12 +132,24 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
 
         <section class="cta-section" #ctaSection id="cta">
           <div class="monolith-cta" [class.is-revealed]="ctaRevealed()">
-            <h2 class="display-lg" style="margin-bottom: 2rem; min-height: 1.2em; display: flex; justify-content: center; align-items: center; white-space: pre;">
+            <h2 class="display-lg cta-typewriter-title">
               {{ ctaTypewriterPrefix() }}<span class="cosmic-highlight">{{ ctaTypewriterWord() }}</span><span class="cursor" [class.blink]="isCtaCursorBlinking()">|</span>
             </h2>
             <button class="btn-download" (click)="onStoreRedirect()">{{ ts.t('hero_btn') }}</button>
           </div>
         </section>
+
+        <footer class="landing-footer">
+          <div class="footer-content">
+            <div class="footer-logo">
+              <svg class="footer-spark" viewBox="0 0 110 135">
+                <path d="M54.17,110v-0.01,0.01c-2.02,-38.31 -5.69,-59.67 -38.07,-61.94 20.18,0 36.69,-15.7 37.98,-35.56l0.08,-2.29v-0.07,0.04l0.01,-0.04c0.07,20.97 17.08,37.92 38.06,37.92 -32.38,2.27 -36.06,23.63 -38.06,61.94z" fill="currentColor"/>
+              </svg>
+              <span>SAGAS</span>
+            </div>
+            <p class="copyright">© 2025 - {{ currentYear }} ilustris. All rights reserved.</p>
+          </div>
+        </footer>
       </div>
 
       <!-- Store Redirect Modal -->
@@ -294,7 +306,8 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
     .display-lg { font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 900; line-height: 0.9; margin: 0; text-transform: uppercase; color: #FFF; }
     
     /* Typewriter Styles */
-    .typewriter-title { position: relative; display: inline-block; text-align: left; min-height: 1.2em; white-space: pre; }
+    .typewriter-title, .cta-typewriter-title { position: relative; display: inline-block; text-align: left; min-height: 1.2em; white-space: pre; }
+    .cta-typewriter-title { display: flex; justify-content: center; align-items: center; margin-bottom: 2rem; }
     .placeholder { visibility: hidden; pointer-events: none; user-select: none; display: flex; align-items: center; white-space: pre; }
     .typing-content { position: absolute; top: 0; left: 0; white-space: pre; display: flex; align-items: center; }
     
@@ -327,9 +340,9 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
 
     section { padding: 0 10vw; min-height: 100vh; display: flex; align-items: center; position: relative; }
     .section-tag { 
-      font-size: 0.75rem; font-weight: 900; letter-spacing: 0.6em; 
-      margin-bottom: 2rem; opacity: 0.6; text-transform: uppercase;
-      transition: all 1s ease;
+      font-size: 0.75rem; font-weight: 900; letter-spacing: 0.5em; 
+      text-transform: uppercase; margin-bottom: 1.5rem; opacity: 0.5;
+      color: #FFF;
     }
     .display-md { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; line-height: 1.1; margin-bottom: 3rem; color: #FFF; }
     .section-desc { font-size: clamp(1rem, 1.8vw, 1.6rem); color: #BBB; line-height: 1.6; max-width: 800px; }
@@ -530,6 +543,37 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
     .modal-btn:hover { transform: scale(1.05); background: rgba(255,255,255,0.2); }
     .modal-btn.primary:hover { background: #E2E2E2; }
 
+    .landing-footer {
+      padding: 4rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02));
+      text-align: center;
+    }
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-weight: 900;
+      letter-spacing: 0.4em;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    .footer-spark { width: 16px; color: #FFF; }
+    .copyright {
+      font-size: 0.75rem;
+      color: #666;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .top-nav { width: 95vw; padding: 0.6rem 1.5rem; }
@@ -549,7 +593,7 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
       
       .btn-download { padding: 1.2rem 2.5rem; font-size: 1rem; margin-top: 4rem; }
       
-      .typewriter-title { white-space: normal; text-align: center; width: 100%; display: block; }
+      .typewriter-title, .cta-typewriter-title { white-space: normal; text-align: center; width: 100%; display: block; }
       .placeholder { display: none; }
       .typing-content { position: relative; display: inline; white-space: normal; }
       .cursor { display: none; }
@@ -592,6 +636,7 @@ export class LandingPage implements OnInit, AfterViewInit, OnDestroy {
   isCursorBlinking = signal(true);
   showStoreModal = signal(false);
   modalData = signal({ title: '', message: '', url: '' });
+  currentYear = new Date().getFullYear();
 
   // CTA Typewriter Signals
   ctaFullPrefix = signal('');

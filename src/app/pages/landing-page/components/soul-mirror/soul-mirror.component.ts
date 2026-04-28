@@ -30,86 +30,100 @@ const EMOTIONS: EmotionState[] = [
   imports: [CommonModule],
   template: `
     <div class="mirror-box">
-      <!-- The Morphing Shape (Hollow Energy Ring) -->
-      <div class="emotion-shape-container" [style.color]="currentColor()">
-        <!-- Multiple layers for the "hollow ring" effect -->
-        <div class="emotion-layer layer-1"></div>
-        <div class="emotion-layer layer-2"></div>
-        <div class="emotion-layer layer-3"></div>
-        <div class="emotion-layer layer-4"></div>
-        <div class="emotion-layer layer-5"></div>
-        <div class="emotion-layer layer-6"></div>
+      <!-- The Nebula Aura (Emotional Resonance) -->
+      <div class="nebula-container" [style.color]="currentColor()">
+        <div class="nebula-core"></div>
+        <div class="nebula-cloud cloud-1"></div>
+        <div class="nebula-cloud cloud-2"></div>
+        <div class="nebula-cloud cloud-3"></div>
+        
+        <!-- Floating Emotional Echoes -->
+        <div class="synonym-cloud">
+          <div *ngFor="let synonym of currentSynonyms(); let i = index" 
+               class="synonym-echo"
+               [style.animation-delay]="(i * 1.5) + 's'"
+               [style.left.%]="synonymPositions[i].x"
+               [style.top.%]="synonymPositions[i].y">
+            {{ synonym }}
+          </div>
+        </div>
       </div>
     </div>
   `,
   styles: [`
     .mirror-box {
       position: relative;
-      width: 400px;
+      width: 100%;
       height: 500px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
 
-    .emotion-shape-container {
+    .nebula-container {
       position: relative;
-      width: 260px;
-      height: 260px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      /* The drop shadow enhances the overall glow of the combined lines */
-      filter: drop-shadow(0 0 20px currentColor);
-      transition: color 1s ease;
+      width: 350px;
+      height: 350px;
+      transition: color 2s ease;
     }
 
-    .emotion-layer {
+    .nebula-core {
+      position: absolute;
+      inset: 20%;
+      background: currentColor;
+      filter: blur(60px);
+      opacity: 0.4;
+      border-radius: 50%;
+      animation: pulse-core 4s infinite ease-in-out;
+    }
+
+    .nebula-cloud {
       position: absolute;
       inset: 0;
-      border: solid currentColor;
-      background-color: transparent;
+      border-radius: 50%;
+      background: radial-gradient(circle, currentColor 0%, transparent 70%);
+      filter: blur(40px);
       mix-blend-mode: screen;
-      box-shadow: inset 0 0 15px currentColor, 0 0 15px currentColor;
-      transition: color 1s ease;
     }
 
-    /* Morphing Animations - Sped up for high energy */
-    .layer-1 { animation: morph1 4s infinite linear, spin 8s infinite linear; scale: 1; opacity: 0.9; border-width: 1px; }
-    .layer-2 { animation: morph2 5s infinite linear, spin 10s infinite linear reverse; scale: 0.98; opacity: 0.7; border-width: 2px; }
-    .layer-3 { animation: morph3 6s infinite linear, spin 12s infinite linear; scale: 0.95; opacity: 0.5; border-width: 1px; }
-    .layer-4 { animation: morph1 7s infinite linear reverse, spin 14s infinite linear reverse; scale: 0.92; opacity: 0.6; border-width: 3px; }
-    .layer-5 { animation: morph2 8s infinite linear reverse, spin 16s infinite linear; scale: 1.02; opacity: 0.4; border-width: 1px; }
-    .layer-6 { animation: morph3 9s infinite linear reverse, spin 18s infinite linear reverse; scale: 0.88; opacity: 0.8; border-width: 2px; }
+    .cloud-1 { animation: drift 12s infinite linear; opacity: 0.3; scale: 1.2; }
+    .cloud-2 { animation: drift 15s infinite linear reverse; opacity: 0.2; scale: 1.5; }
+    .cloud-3 { animation: drift 20s infinite ease-in-out; opacity: 0.25; scale: 1.3; }
 
-
-
-    @keyframes morph1 {
-      0% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
-      33% { border-radius: 70% 30% 80% 20% / 20% 80% 30% 70%; }
-      66% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
-      100% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
+    .synonym-cloud {
+      position: absolute;
+      inset: -50px;
+      pointer-events: none;
     }
 
-    @keyframes morph2 {
-      0% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
-      33% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
-      66% { border-radius: 70% 30% 80% 20% / 20% 80% 30% 70%; }
-      100% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
+    .synonym-echo {
+      position: absolute;
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #FFF;
+      opacity: 0;
+      animation: float-fade 6s infinite ease-in-out;
+      white-space: nowrap;
+      text-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
 
-    @keyframes morph3 {
-      0% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
-      33% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
-      66% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
-      100% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
+    @keyframes pulse-core {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.2); opacity: 0.6; }
     }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    @keyframes drift {
+      0% { transform: rotate(0deg) translate(20px) rotate(0deg); }
+      100% { transform: rotate(360deg) translate(20px) rotate(-360deg); }
+    }
+
+    @keyframes float-fade {
+      0% { transform: translateY(20px); opacity: 0; }
+      20% { opacity: 0.4; }
+      80% { opacity: 0.4; }
+      100% { transform: translateY(-20px); opacity: 0; }
     }
   `]
 })
@@ -120,11 +134,20 @@ export class SoulMirrorComponent implements OnInit, OnDestroy {
   private intervalId: any;
 
   currentColor = computed(() => EMOTIONS[this.currentIndex()].color);
+  currentSynonyms = computed(() => {
+    const emotion = EMOTIONS[this.currentIndex()].id;
+    return this.ts.tList('synonyms_' + emotion);
+  });
+
+  synonymPositions = [
+    { x: 10, y: 20 }, { x: 80, y: 15 }, { x: 20, y: 80 }, { x: 75, y: 85 },
+    { x: 50, y: -10 }, { x: -15, y: 50 }, { x: 105, y: 45 }, { x: 45, y: 110 }
+  ];
 
   ngOnInit() {
     this.intervalId = setInterval(() => {
       this.currentIndex.update(i => (i + 1) % EMOTIONS.length);
-    }, 2500); // Shift energy rapidly every 2.5 seconds
+    }, 4000); // Slower, more atmospheric shifts
   }
 
   ngOnDestroy() {
