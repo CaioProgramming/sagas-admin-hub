@@ -1,5 +1,28 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../../../../services/translation.service';
+
+interface EmotionState {
+  id: string;
+  color: string;
+}
+
+const EMOTIONS: EmotionState[] = [
+  { id: 'neutral', color: '#B0BEC5' },
+  { id: 'calm', color: '#A5D6A7' },
+  { id: 'curious', color: '#FFF59D' },
+  { id: 'hopeful', color: '#81D4FA' },
+  { id: 'determined', color: '#FFAB91' },
+  { id: 'empathetic', color: '#CE93D8' },
+  { id: 'joyful', color: '#FFE082' },
+  { id: 'concerned', color: '#BCAAA4' },
+  { id: 'anxious', color: '#FFCC80' },
+  { id: 'frustrated', color: '#EF9A9A' },
+  { id: 'angry', color: '#D32F2F' },
+  { id: 'sad', color: '#90A4AE' },
+  { id: 'melancholic', color: '#7986CB' },
+  { id: 'cynical', color: '#757575' }
+];
 
 @Component({
   selector: 'app-soul-mirror',
@@ -7,23 +30,15 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="mirror-box">
-      <div class="liquid-mirror">
-        <div class="reflection-core">
-          <div class="echo e1"></div>
-          <div class="echo e2"></div>
-          <div class="echo e3"></div>
-        </div>
-        <div class="distortion-overlay"></div>
-      </div>
-      
-      <!-- Emotional Beats (Floating Text Fragments) -->
-      <div class="emotional-fragments">
-        <div class="fragment" *ngFor="let frag of fragments"
-             [style.left.%]="frag.x"
-             [style.top.%]="frag.y"
-             [style.animation-delay]="frag.delay">
-          {{ frag.text }}
-        </div>
+      <!-- The Morphing Shape (Hollow Energy Ring) -->
+      <div class="emotion-shape-container" [style.color]="currentColor()">
+        <!-- Multiple layers for the "hollow ring" effect -->
+        <div class="emotion-layer layer-1"></div>
+        <div class="emotion-layer layer-2"></div>
+        <div class="emotion-layer layer-3"></div>
+        <div class="emotion-layer layer-4"></div>
+        <div class="emotion-layer layer-5"></div>
+        <div class="emotion-layer layer-6"></div>
       </div>
     </div>
   `,
@@ -31,105 +46,91 @@ import { CommonModule } from '@angular/common';
     .mirror-box {
       position: relative;
       width: 400px;
-      height: 400px;
+      height: 500px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
 
-    .liquid-mirror {
+    .emotion-shape-container {
       position: relative;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle at 30% 30%, #1a1a1a 0%, #000 80%);
-      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-      border: 1px solid rgba(255,255,255,0.15);
-      animation: morph-liquid 10s infinite alternate ease-in-out;
-      overflow: hidden;
-      box-shadow: 0 0 100px rgba(255,255,255,0.05), inset 0 0 50px rgba(0,0,0,0.5);
-    }
-
-    .reflection-core {
-      position: absolute;
-      inset: 0;
+      width: 260px;
+      height: 260px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+      z-index: 10;
+      /* The drop shadow enhances the overall glow of the combined lines */
+      filter: drop-shadow(0 0 20px currentColor);
+      transition: color 1s ease;
     }
 
-    .echo {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 30% 70% 50% 50% / 50% 30% 70% 50%;
-      animation: echo-pulse 5s infinite ease-out, morph-liquid 8s infinite alternate linear;
-    }
-
-    .e2 { animation-delay: 1.5s; width: 120px; height: 120px; opacity: 0.2; }
-    .e3 { animation-delay: 3s; width: 160px; height: 160px; opacity: 0.1; }
-
-    .distortion-overlay {
+    .emotion-layer {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.03), transparent);
-      height: 200%;
-      animation: scanning 12s infinite linear;
+      border: solid currentColor;
+      background-color: transparent;
+      mix-blend-mode: screen;
+      box-shadow: inset 0 0 15px currentColor, 0 0 15px currentColor;
+      transition: color 1s ease;
     }
 
-    .emotional-fragments {
-      position: absolute;
-      inset: -80px;
-      pointer-events: none;
+    /* Morphing Animations - Sped up for high energy */
+    .layer-1 { animation: morph1 4s infinite linear, spin 8s infinite linear; scale: 1; opacity: 0.9; border-width: 1px; }
+    .layer-2 { animation: morph2 5s infinite linear, spin 10s infinite linear reverse; scale: 0.98; opacity: 0.7; border-width: 2px; }
+    .layer-3 { animation: morph3 6s infinite linear, spin 12s infinite linear; scale: 0.95; opacity: 0.5; border-width: 1px; }
+    .layer-4 { animation: morph1 7s infinite linear reverse, spin 14s infinite linear reverse; scale: 0.92; opacity: 0.6; border-width: 3px; }
+    .layer-5 { animation: morph2 8s infinite linear reverse, spin 16s infinite linear; scale: 1.02; opacity: 0.4; border-width: 1px; }
+    .layer-6 { animation: morph3 9s infinite linear reverse, spin 18s infinite linear reverse; scale: 0.88; opacity: 0.8; border-width: 2px; }
+
+
+
+    @keyframes morph1 {
+      0% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
+      33% { border-radius: 70% 30% 80% 20% / 20% 80% 30% 70%; }
+      66% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
+      100% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
     }
 
-    .fragment {
-      position: absolute;
-      font-size: 0.65rem;
-      font-weight: 900;
-      letter-spacing: 0.5em;
-      color: rgba(255,255,255,0.4);
-      text-transform: uppercase;
-      animation: float-fragment 12s infinite ease-in-out;
-      white-space: nowrap;
-      text-shadow: 0 0 10px rgba(255,255,255,0.2);
+    @keyframes morph2 {
+      0% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
+      33% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
+      66% { border-radius: 70% 30% 80% 20% / 20% 80% 30% 70%; }
+      100% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
     }
 
-    @keyframes morph-liquid {
-      0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-      50% { border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; }
-      100% { border-radius: 70% 30% 40% 60% / 60% 40% 50% 40%; }
+    @keyframes morph3 {
+      0% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
+      33% { border-radius: 80% 20% 70% 30% / 30% 70% 20% 80%; }
+      66% { border-radius: 30% 70% 20% 80% / 80% 20% 70% 30%; }
+      100% { border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%; }
     }
 
-    @keyframes echo-pulse {
-      0% { transform: scale(0.6) rotate(0deg); opacity: 0; }
-      50% { opacity: 0.4; }
-      100% { transform: scale(2.2) rotate(180deg); opacity: 0; }
-    }
-
-    @keyframes scanning {
-      0% { transform: translateY(-50%); }
-      100% { transform: translateY(50%); }
-    }
-
-    @keyframes float-fragment {
-      0% { transform: translate(0, 20px); opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { transform: translate(var(--tx, 0), -150px); opacity: 0; }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   `]
 })
-export class SoulMirrorComponent {
-  fragments = [
-    { text: 'REGRET', x: 15, y: 85, delay: '0s', tx: -20 },
-    { text: 'VALOR', x: 75, y: 15, delay: '3s', tx: 30 },
-    { text: 'BETRAYAL', x: 80, y: 70, delay: '6s', tx: 40 },
-    { text: 'LEGACY', x: 5, y: 40, delay: '9s', tx: -30 },
-    { text: 'SACRIFICE', x: 50, y: 95, delay: '1s', tx: 0 },
-    { text: 'AMBITION', x: 85, y: 30, delay: '4s', tx: 50 },
-    { text: 'IDENTITY', x: 30, y: 10, delay: '7s', tx: -10 },
-    { text: 'THE ECHO', x: 60, y: 50, delay: '10s', tx: 20 }
-  ];
+export class SoulMirrorComponent implements OnInit, OnDestroy {
+  ts = inject(TranslationService);
+  
+  private currentIndex = signal(0);
+  private intervalId: any;
+
+  currentColor = computed(() => EMOTIONS[this.currentIndex()].color);
+
+  ngOnInit() {
+    this.intervalId = setInterval(() => {
+      this.currentIndex.update(i => (i + 1) % EMOTIONS.length);
+    }, 2500); // Shift energy rapidly every 2.5 seconds
+  }
+
+  ngOnDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 }
+
