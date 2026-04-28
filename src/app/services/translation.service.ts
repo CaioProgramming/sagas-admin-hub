@@ -46,6 +46,9 @@ export class TranslationService {
     },
     'hero_btn': { en: 'Start your story', 'pt-br': 'Comece sua história' },
     'ios_coming_soon': { en: 'Sagas is coming soon to the App Store!', 'pt-br': 'Sagas estará disponível na App Store em breve!' },
+    'android_coming_soon': { en: 'Sagas is coming soon to the Play Store!', 'pt-br': 'Sagas estará disponível na Play Store em breve!' },
+    'download_now': { en: 'Download Sagas', 'pt-br': 'Baixar Sagas' },
+    'open_store': { en: 'Open Store', 'pt-br': 'Abrir Loja' },
 
     // Typewriter
     'type_prefix': { en: 'CRAFT ', 'pt-br': 'CRIE ' },

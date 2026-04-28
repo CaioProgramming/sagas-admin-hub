@@ -140,17 +140,23 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
         </section>
       </div>
 
-      <!-- Custom iOS Alert Modal -->
-      <div class="custom-modal-backdrop" [class.is-visible]="showIosAlert()" (click)="showIosAlert.set(false)">
+      <!-- Store Redirect Modal -->
+      <div class="custom-modal-backdrop" [class.is-visible]="showStoreModal()" (click)="showStoreModal.set(false)">
         <div class="custom-modal" (click)="$event.stopPropagation()">
           <div class="modal-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg *ngIf="!modalData().url" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
+            <svg *ngIf="modalData().url" viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"></path>
+            </svg>
           </div>
-          <h3 class="modal-title">App Store</h3>
-          <p class="modal-message">{{ ts.t('ios_coming_soon') }}</p>
-          <button class="modal-btn" (click)="showIosAlert.set(false)">OK</button>
+          <h3 class="modal-title">{{ modalData().title }}</h3>
+          <p class="modal-message">{{ modalData().message }}</p>
+          <div class="modal-actions">
+            <button *ngIf="modalData().url" class="modal-btn primary" (click)="openUrl(modalData().url)">{{ ts.t('open_store') }}</button>
+            <button class="modal-btn" (click)="showStoreModal.set(false)">{{ modalData().url ? 'CLOSE' : 'OK' }}</button>
+          </div>
         </div>
       </div>
     </div>
@@ -505,12 +511,20 @@ import { SoulMirrorComponent } from './components/soul-mirror/soul-mirror.compon
     .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: 0.1em; }
     .modal-message { font-size: 1rem; color: #AAA; line-height: 1.6; margin-bottom: 2.5rem; }
     
-    .modal-btn {
-      background: #FFF; color: #000; font-weight: 900; font-size: 1rem;
-      padding: 1rem 3rem; border: none; border-radius: 8px; cursor: pointer;
-      transition: all 0.3s;
+    .modal-actions {
+      display: flex; gap: 1rem; justify-content: center;
     }
-    .modal-btn:hover { transform: scale(1.05); background: #E2E2E2; }
+    
+    .modal-btn {
+      background: rgba(255,255,255,0.1); color: #FFF; font-weight: 900; font-size: 0.8rem;
+      padding: 0.8rem 2rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer;
+      transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .modal-btn.primary {
+      background: #FFF; color: #000; border: none;
+    }
+    .modal-btn:hover { transform: scale(1.05); background: rgba(255,255,255,0.2); }
+    .modal-btn.primary:hover { background: #E2E2E2; }
 
     /* Mobile Responsiveness */
     @media (max-width: 768px) {
@@ -571,7 +585,8 @@ export class LandingPage implements OnInit, AfterViewInit, OnDestroy {
   longestWord = signal('UNIVERSE.');
   showSubtitle = signal(false);
   isCursorBlinking = signal(true);
-  showIosAlert = signal(false);
+  showStoreModal = signal(false);
+  modalData = signal({ title: '', message: '', url: '' });
 
   // CTA Typewriter Signals
   ctaFullPrefix = signal('');
@@ -727,11 +742,48 @@ export class LandingPage implements OnInit, AfterViewInit, OnDestroy {
     const ua = navigator.userAgent.toLowerCase();
     const isMacOrIos = /macintosh|macintel|mac os x|iphone|ipad|ipod/.test(ua);
     
+    // Get store links from Remote Config
+    const storeLinks = this.remoteConfigService.getJson<any>('store_links') || {
+      android: 'https://play.google.com/store/apps/details?id=com.ilustris.sagai',
+      ios: ''
+    };
+
     if (isMacOrIos) {
-      this.showIosAlert.set(true);
+      if (storeLinks.ios) {
+        this.modalData.set({
+          title: 'App Store',
+          message: this.ts.t('download_now'),
+          url: storeLinks.ios
+        });
+      } else {
+        this.modalData.set({
+          title: 'App Store',
+          message: this.ts.t('ios_coming_soon'),
+          url: ''
+        });
+      }
     } else {
-      window.open('https://play.google.com/store/apps/details?id=com.ilustris.sagai', '_blank');
+      if (storeLinks.android) {
+        this.modalData.set({
+          title: 'Play Store',
+          message: this.ts.t('download_now'),
+          url: storeLinks.android
+        });
+      } else {
+        this.modalData.set({
+          title: 'Play Store',
+          message: this.ts.t('android_coming_soon'),
+          url: ''
+        });
+      }
     }
+    
+    this.showStoreModal.set(true);
+  }
+
+  openUrl(url: string) {
+    window.open(url, '_blank');
+    this.showStoreModal.set(false);
   }
 
   async startTypewriter() {
