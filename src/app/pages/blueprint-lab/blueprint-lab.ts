@@ -144,10 +144,12 @@ interface GenreSoul {
                     Soul {{ selectedSoul()!.soulHealth }}% · Visual {{ selectedSoul()!.visualHealth }}% · SFX {{ selectedSoul()!.sfxHealth }}%
                   </p>
                 </div>
-                <button class="btn btn-secondary btn-sm ai-btn" 
+                <button class="ai-btn" 
                         (click)="runAiAudit()" 
                         [disabled]="aiLoading()">
-                  {{ aiLoading() ? 'Analyzing...' : '🪄 AI Audit Soul' }}
+                  <span>
+                    {{ aiLoading() ? '🪄 Analyzing...' : '✨ AI Audit Soul' }}
+                  </span>
                 </button>
               </div>
 
@@ -155,12 +157,17 @@ interface GenreSoul {
               <div class="ai-results glass-card" *ngIf="aiResult()">
                 <div class="ai-header">
                   <span class="icon">✨</span>
-                  <span>Gemini Auditor Suggestions</span>
-                  <button class="btn btn-primary btn-xs apply-ai" 
-                          *ngIf="suggestedChanges"
-                          (click)="applyAiSuggestions()">
-                    Apply Suggested Soul
-                  </button>
+                  <span class="header-title">Gemini Auditor Suggestions</span>
+                  <div class="ai-actions">
+                    <button class="copy-suggestions-btn" (click)="copyAiSuggestions()">
+                      {{ suggestionsCopied() ? 'Copied!' : '📋 Copy' }}
+                    </button>
+                    <button class="apply-suggestions-btn" 
+                            *ngIf="suggestedChanges"
+                            (click)="applyAiSuggestions()">
+                      🪄 Apply Suggested Soul
+                    </button>
+                  </div>
                 </div>
                 <div class="ai-content">{{ aiResult() }}</div>
               </div>
@@ -603,42 +610,138 @@ interface GenreSoul {
     }
 
     .ai-btn {
-      border-color: var(--purple);
-      color: #a78bfa;
-      background: rgba(139, 92, 246, 0.1);
+      position: relative;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 
+        0 0 15px rgba(167, 139, 250, 0.15),
+        inset 0 0 8px rgba(167, 139, 250, 0.08);
+    }
+
+    .ai-btn:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.18);
+      border-color: rgba(167, 139, 250, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 0 25px rgba(167, 139, 250, 0.35),
+        0 0 10px rgba(139, 92, 246, 0.2);
+    }
+
+    .ai-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .ai-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ai-btn span {
+      background: linear-gradient(135deg, #f3e8ff 0%, #c084fc 60%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .ai-results {
       padding: 1.5rem;
-      background: rgba(139, 92, 246, 0.05);
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.06) 0%, rgba(10, 10, 16, 0.6) 90%);
+      border: 1px solid rgba(167, 139, 250, 0.2);
       margin-bottom: 2rem;
-      border-radius: 12px;
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(139, 92, 246, 0.05);
     }
 
     .ai-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+      padding-bottom: 0.75rem;
+    }
+
+    .ai-header .header-title {
       font-size: 0.75rem;
       font-weight: 800;
-      color: #a78bfa;
+      color: #c084fc;
       text-transform: uppercase;
-      margin-bottom: 1rem;
+      letter-spacing: 0.08em;
+    }
+
+    .ai-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-left: auto;
+    }
+
+    .copy-suggestions-btn {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .copy-suggestions-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.38);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .apply-suggestions-btn {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.35rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.8) 0%, rgba(219, 39, 119, 0.8) 100%);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+    }
+
+    .apply-suggestions-btn:hover {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.95) 0%, rgba(219, 39, 119, 0.95) 100%);
+      border-color: rgba(167, 139, 250, 0.5);
+      transform: translateY(-1px);
+      box-shadow: 0 0 25px rgba(124, 58, 237, 0.45);
     }
 
     .ai-content {
       font-size: 0.85rem;
-      line-height: 1.6;
-      color: var(--text-secondary);
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.85);
       white-space: pre-wrap;
       word-break: break-all;
-    }
-
-    .apply-ai {
-      margin-left: auto;
-      background: var(--primary-gradient);
-      font-size: 10px;
     }
 
     .edit-area {
@@ -752,6 +855,7 @@ export class BlueprintLab implements OnInit {
   protected aiLoading = signal(false);
   protected aiResult = signal<string | null>(null);
   protected suggestedChanges: any = null;
+  protected suggestionsCopied = signal(false);
 
   souls = computed(() => {
     const genresDict = this.genreConfigService.genres();
@@ -927,6 +1031,18 @@ export class BlueprintLab implements OnInit {
       }
     } finally {
       this.aiLoading.set(false);
+    }
+  }
+
+  async copyAiSuggestions(): Promise<void> {
+    const text = this.aiResult();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      this.suggestionsCopied.set(true);
+      setTimeout(() => this.suggestionsCopied.set(false), 2000);
+    } catch (e) {
+      console.error('Could not copy audit suggestions to clipboard:', e);
     }
   }
 
