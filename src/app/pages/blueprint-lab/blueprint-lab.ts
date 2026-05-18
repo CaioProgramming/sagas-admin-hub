@@ -120,7 +120,8 @@ interface GenreSoul {
 
       <!-- Soul Preview Modal -->
       <div class="overlay" *ngIf="selectedSoul()" (click)="selectedSoul.set(null)">
-        <div class="soul-preview-modal glass-card" (click)="$event.stopPropagation()">
+        <div class="modal-ambient-glow" [style.background]="'radial-gradient(circle at 50% 50%, ' + themeAccent(selectedSoul()!) + '33 0%, transparent 70%)'"></div>
+        <div class="soul-preview-modal glass-card" [style.--theme-accent]="themeAccent(selectedSoul()!)" (click)="$event.stopPropagation()">
           <div class="modal-layout">
             
             <app-genre-prompt-studio
@@ -253,26 +254,23 @@ interface GenreSoul {
       overflow: hidden;
       cursor: pointer;
       isolation: isolate;
-      transition:
-        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.28s ease;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow:
         0 8px 28px rgba(0, 0, 0, 0.35),
         0 0 0 1px color-mix(in srgb, var(--theme-accent) 35%, transparent);
     }
 
     .soul-card:hover {
-      transform: translateY(-6px) scale(1.01);
+      transform: translateY(-10px) scale(1.03);
       box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.45),
-        0 0 0 1px color-mix(in srgb, var(--theme-accent) 65%, transparent),
-        0 0 32px color-mix(in srgb, var(--theme-accent) 22%, transparent);
+        0 20px 48px rgba(0, 0, 0, 0.6),
+        0 0 30px var(--theme-accent);
     }
 
     .soul-card.selected {
       box-shadow:
-        0 0 0 2px color-mix(in srgb, var(--theme-accent) 85%, white 10%),
-        0 0 40px color-mix(in srgb, var(--theme-accent) 30%, transparent);
+        0 0 0 3px color-mix(in srgb, var(--theme-accent) 85%, white 15%),
+        0 0 45px var(--theme-accent);
     }
 
     .soul-card.missing {
@@ -535,17 +533,35 @@ interface GenreSoul {
       padding: 1.5rem;
     }
 
+    .modal-ambient-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      filter: blur(80px);
+      animation: pulse-glow 4s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse-glow {
+      from { opacity: 0.5; transform: scale(0.92); }
+      to { opacity: 0.95; transform: scale(1.05); }
+    }
+
     .soul-preview-modal {
       width: 100%;
       max-width: 1280px;
       height: 90vh;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid color-mix(in srgb, var(--theme-accent, rgba(255, 255, 255, 0.1)) 40%, transparent);
       background: rgba(10, 10, 14, 0.55);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       border-radius: 20px;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 40px color-mix(in srgb, var(--theme-accent, transparent) 15%, transparent);
+      transition: border-color 0.5s ease, box-shadow 0.5s ease;
+      position: relative;
+      z-index: 1;
     }
 
     .modal-layout {
@@ -641,8 +657,9 @@ interface GenreSoul {
 
     .edit-area:focus {
       outline: none;
-      border-color: var(--sagas-red);
+      border-color: var(--theme-accent);
       background: rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--theme-accent) 30%, transparent);
     }
 
     .health-chip {

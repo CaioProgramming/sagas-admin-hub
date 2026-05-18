@@ -199,8 +199,16 @@ interface TrackUi {
       overflow: hidden;
       min-height: 56px;
       cursor: pointer;
-      background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
-      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.25);
+      background: rgba(10, 10, 16, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 15px color-mix(in srgb, var(--c1) 15%, transparent);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .wave-wrap:hover {
+      background: rgba(10, 10, 16, 0.85);
+      border-color: color-mix(in srgb, var(--c1) 40%, transparent);
+      box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.8), 0 0 25px color-mix(in srgb, var(--c1) 25%, transparent);
     }
 
     .wave-canvas {
@@ -611,24 +619,46 @@ export class GenreAudioPreviewComponent
 
     ctx.clearRect(0, 0, w, h);
 
+    // Create a beautiful linear gradient from the theme's colors
+    const grad = ctx.createLinearGradient(0, 0, w, 0);
+    if (this.themeColors && this.themeColors.length > 0) {
+      const len = this.themeColors.length;
+      this.themeColors.forEach((color, idx) => {
+        const stop = idx / (len - 1 || 1);
+        grad.addColorStop(stop, color);
+      });
+    } else {
+      grad.addColorStop(0, '#8b2635');
+      grad.addColorStop(1, '#e91e63');
+    }
+
     const bars = peaks.length;
     const gap = Math.max(1, Math.floor(2 * dpr));
     const barW = (w - gap * (bars - 1)) / bars;
     const centerY = h / 2;
 
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(1.5, barW);
+
     for (let i = 0; i < bars; i++) {
       const peak = peaks[i];
-      const barH = Math.max(2 * dpr, peak * h * 0.82);
-      const x = i * (barW + gap);
+      const barH = Math.max(4 * dpr, peak * h * 0.75);
+      const x = i * (barW + gap) + barW / 2;
       const played = i <= playedBars;
-      ctx.fillStyle = played
-        ? 'rgba(255, 255, 255, 0.95)'
-        : 'rgba(255, 255, 255, 0.38)';
-      ctx.fillRect(x, centerY - barH / 2, barW, barH);
+
+      ctx.globalAlpha = played ? 0.95 : 0.22;
+      ctx.strokeStyle = grad;
+
+      ctx.beginPath();
+      ctx.moveTo(x, centerY - barH / 2);
+      ctx.lineTo(x, centerY + barH / 2);
+      ctx.stroke();
     }
 
+    ctx.globalAlpha = 1.0; // Reset alpha for other drawing operations
+
     const playX = progress * w;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
     ctx.lineWidth = 1.5 * dpr;
     ctx.beginPath();
     ctx.moveTo(playX, 0);
