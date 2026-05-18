@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GenreConfigService } from '../../../../services/genre-config.service';
 import { TranslationService } from '../../../../services/translation.service';
 import { GenreConfig } from '../../../../models/genre-config';
+import { GenreBundle } from '../../../../services/genre-config.service';
 
 @Component({
   selector: 'app-genre-carousel',
@@ -223,22 +224,32 @@ export class GenreCarouselComponent {
 
   displayGenres = computed(() => {
     const genresDict = this.genreConfigService.genres();
-    const genreList = Object.entries(genresDict).map(([id, config]) => {
+    const genreList = Object.values(genresDict).map((bundle: GenreBundle) => {
+      const id = bundle.id;
+      const merged = { ...(bundle.soul ?? {}), ...(bundle.visual ?? {}) } as GenreConfig & {
+        primaryColor?: string;
+        cornerSizeDp?: number;
+        shaderParams?: GenreConfig['shaderParams'];
+      };
       const translationKeyDesc = `genre_desc_${id.toLowerCase()}`;
       const translatedDesc = this.ts.t(translationKeyDesc);
-      
+
       const translationKeyTitle = `genre_title_${id.toLowerCase()}`;
       const translatedTitle = this.ts.t(translationKeyTitle);
-      
-      // Fallback to default desc if specific translation is missing (i.e. returns the key itself)
-      const finalDesc = translatedDesc === translationKeyDesc ? this.ts.t('genre_desc_default') : translatedDesc;
-      const finalTitle = translatedTitle === translationKeyTitle ? id.toUpperCase() : translatedTitle;
-      
+
+      const finalDesc =
+        translatedDesc === translationKeyDesc
+          ? this.ts.t('genre_desc_default')
+          : translatedDesc;
+      const finalTitle =
+        translatedTitle === translationKeyTitle ? id.toUpperCase() : translatedTitle;
+
       return {
-        ...config,
+        ...merged,
+        imageUrl: this.genreConfigService.resolveImageUrl(bundle),
         name: finalTitle,
         description: finalDesc,
-        health: (config as any).health || 100
+        health: 100,
       };
     });
     

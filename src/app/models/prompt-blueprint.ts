@@ -1,7 +1,9 @@
 export interface PromptBlueprint {
-  role: string;
+  title?: string;
+  role?: string;
   template: string;
-  directives: Record<string, string>;
-  rules: Record<string, string>;
+  directives?: Record<string, string>;
+  rules?: Record<string, string>;
+  examples?: Record<string, string>[];
   omitHeaders?: boolean;
 }

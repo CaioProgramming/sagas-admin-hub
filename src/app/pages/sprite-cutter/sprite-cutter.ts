@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import JSZip from 'jszip';
 
 interface SpriteCell {
   name: string;
@@ -335,6 +334,7 @@ export class SpriteCutter {
 
   async exportAll() {
     if (!this.img) return;
+    const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
     const tempCanvas = document.createElement('canvas');
     const ctx = tempCanvas.getContext('2d');

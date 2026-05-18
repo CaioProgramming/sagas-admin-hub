@@ -44,12 +44,12 @@ export interface GenreConfig {
   [key: string]: any; // Flexibility for extra fields
 }
 
+/** @deprecated Use genre-field-spec.ts + GenreHealthService */
 export const MANDATORY_GENRE_KEYS: (keyof GenreConfig)[] = [
   'imageUrl',
   'artStyle',
   'renderingInstructions',
   'appearanceGuidelines',
-  'conversationDirective',
-  'nameDirective',
-  'criticalRules'
+  'criticalRules',
+  'ambientMusicUrl',
 ];

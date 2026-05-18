@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
-import { fetchAndActivate, getAll, Value } from 'firebase/remote-config';
+import { Injectable, inject, signal } from '@angular/core';
+import { getAll, Value } from 'firebase/remote-config';
 import { FirebaseService } from './firebase.service';
+import { RemoteConfigService } from './remote-config.service';
 
 export interface RemoteConfigFlag {
   key: string;
@@ -20,18 +21,19 @@ export interface RemoteConfigFeature {
   providedIn: 'root'
 })
 export class NamespaceService {
+  private firebaseService = inject(FirebaseService);
+  private remoteConfigService = inject(RemoteConfigService);
+
   private featuresSignal = signal<RemoteConfigFeature[]>([]);
   public features = this.featuresSignal.asReadonly();
 
   private loadingSignal = signal<boolean>(false);
   public loading = this.loadingSignal.asReadonly();
 
-  constructor(private firebaseService: FirebaseService) {}
-
-  async refreshTemplate() {
+  async refreshTemplate(force = false) {
     this.loadingSignal.set(true);
     try {
-      await fetchAndActivate(this.firebaseService.config);
+      await this.remoteConfigService.ensureActivated(force);
       const allValues = getAll(this.firebaseService.config);
       this.parseFeatures(allValues);
     } catch (error) {
@@ -47,7 +49,7 @@ export class NamespaceService {
     Object.entries(values).forEach(([key, value]) => {
       const parts = key.split('_');
       const prefix = parts.length > 1 ? parts[0] : 'global';
-      
+
       const flag: RemoteConfigFlag = {
         key: key,
         value: value.asString(),
@@ -71,7 +73,6 @@ export class NamespaceService {
       };
     });
 
-    // Sort by name, with 'global' first
     features.sort((a, b) => {
       if (a.name === 'global') return -1;
       if (b.name === 'global') return 1;
@@ -83,7 +84,7 @@ export class NamespaceService {
 
   private auditFlag(key: string, value: string): string[] {
     const warnings: string[] = [];
-    
+
     if (!value || value.trim() === '' || value === '{}' || value === '[]') {
       warnings.push('Empty value');
     }

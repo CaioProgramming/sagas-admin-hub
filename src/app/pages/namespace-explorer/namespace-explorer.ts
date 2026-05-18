@@ -328,7 +328,7 @@ export class NamespaceExplorer implements OnInit {
   }
 
   refresh() {
-    this.namespaceService.refreshTemplate();
+    this.namespaceService.refreshTemplate(true);
   }
 
   totalHealthy() {

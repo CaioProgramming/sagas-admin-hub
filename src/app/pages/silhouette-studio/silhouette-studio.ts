@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import JSZip from 'jszip';
 
 @Component({
   selector: 'app-silhouette-studio',
@@ -345,6 +344,7 @@ export class SilhouetteStudio {
   }
 
   async downloadAll() {
+    const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
     const canvasElements = document.querySelectorAll('canvas');
     

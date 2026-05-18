@@ -753,7 +753,7 @@ export class LandingPage implements OnInit, AfterViewInit, OnDestroy {
     
     // 1. Fetch and activate Remote Config
     try {
-      await this.remoteConfigService.fetchAndActivate();
+      await this.remoteConfigService.ensureActivated();
       
       // 2. Sync domain services (Always sync after fetch attempt)
       await Promise.all([

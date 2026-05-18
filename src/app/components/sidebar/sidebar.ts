@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StagingService } from '../../services/staging.service';
@@ -7,13 +7,14 @@ import { StagingService } from '../../services/staging.service';
   selector: 'app-sidebar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="sidebar">
       <div class="brand">
         <img src="/logo.svg" alt="Sagas Spark" class="logo">
         <span class="brand-name">SAGAS HUB</span>
       </div>
-      
+
       <nav class="nav-links">
         <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
           <span class="icon">⬢</span>
@@ -35,18 +36,18 @@ import { StagingService } from '../../services/staging.service';
           <span class="icon">✂️</span>
           Sprite Cutter
         </a>
-        
+
         <div class="nav-divider"></div>
-        
+
         <a routerLink="/admin/staging" routerLinkActive="active" class="nav-item sync-nav">
           <span class="icon">🚀</span>
           Sync
-          <span class="badge" *ngIf="staging.getModifiedKeys().length > 0">
-            {{ staging.getModifiedKeys().length }}
-          </span>
+          @if (staging.modifiedKeysCount() > 0) {
+            <span class="badge">{{ staging.modifiedKeysCount() }}</span>
+          }
         </a>
       </nav>
-      
+
       <div class="sidebar-footer">
         <div class="user-profile">
           <div class="avatar">C</div>

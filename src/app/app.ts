@@ -1,8 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from './components/sidebar/sidebar';
-import { StagingService } from './services/staging.service';
 
 @Component({
   selector: 'app-root',
@@ -38,13 +37,8 @@ import { StagingService } from './services/staging.service';
     }
   `]
 })
-export class App implements OnInit {
-  staging = inject(StagingService);
+export class App {
   router = inject(Router);
-
-  ngOnInit() {
-    this.staging.init();
-  }
 
   isLandingPage(): boolean {
     const url = this.router.url;

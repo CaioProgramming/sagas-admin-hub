@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { RemoteConfigAdminService } from './remote-config-admin.service';
 
@@ -10,26 +10,45 @@ export class StagingService {
 
   private productionTemplate = new BehaviorSubject<any>(null);
   private stagingTemplate = new BehaviorSubject<any>(null);
+  private initPromise: Promise<void> | null = null;
 
   productionTemplate$ = this.productionTemplate.asObservable();
   stagingTemplate$ = this.stagingTemplate.asObservable();
 
+  readonly modifiedKeysCount = signal(0);
+
   /**
-   * Initializes the staging area by pulling the latest production config.
+   * Initializes staging once (Admin API template fetch).
    */
+  async ensureInit(): Promise<void> {
+    if (!this.initPromise) {
+      this.initPromise = this.init();
+    }
+    return this.initPromise;
+  }
+
   async init() {
     try {
       const template = await this.adminService.getTemplate();
       this.productionTemplate.next(JSON.parse(JSON.stringify(template)));
       this.stagingTemplate.next(JSON.parse(JSON.stringify(template)));
+      this.refreshModifiedCount();
     } catch (error) {
       console.error('Failed to init staging:', error);
+      this.initPromise = null;
     }
   }
 
-  /**
-   * Updates a specific parameter in the staging draft.
-   */
+  getDraftJson<T>(key: string): T | null {
+    const raw = this.stagingTemplate.value?.parameters?.[key]?.defaultValue?.value;
+    if (!raw || typeof raw !== 'string') return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
   updateDraft(key: string, value: string, valueType: 'JSON' | 'STRING' = 'JSON') {
     const current = this.stagingTemplate.value;
     if (!current) return;
@@ -43,38 +62,34 @@ export class StagingService {
     };
 
     this.stagingTemplate.next(updated);
+    this.refreshModifiedCount();
   }
 
-  /**
-   * Returns a list of keys that have been modified in staging.
-   */
   getModifiedKeys(): string[] {
     const prod = this.productionTemplate.value?.parameters || {};
     const stage = this.stagingTemplate.value?.parameters || {};
     const keys = new Set([...Object.keys(prod), ...Object.keys(stage)]);
-    
+
     return Array.from(keys).filter(key => {
       return JSON.stringify(prod[key]) !== JSON.stringify(stage[key]);
     });
   }
 
-  /**
-   * Discards all staging changes and resets to production.
-   */
   discardChanges() {
     this.stagingTemplate.next(JSON.parse(JSON.stringify(this.productionTemplate.value)));
+    this.refreshModifiedCount();
   }
 
-  /**
-   * Pushes the staging template to Production.
-   */
   async pushToProduction() {
     const template = this.stagingTemplate.value;
     if (!template) return;
 
     await this.adminService.publishTemplate(template);
-    
-    // Refresh production view
     this.productionTemplate.next(JSON.parse(JSON.stringify(template)));
+    this.refreshModifiedCount();
+  }
+
+  private refreshModifiedCount() {
+    this.modifiedKeysCount.set(this.getModifiedKeys().length);
   }
 }

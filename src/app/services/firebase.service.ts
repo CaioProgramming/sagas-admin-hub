@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { initializeApp, FirebaseApp } from 'firebase/app';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { getRemoteConfig, RemoteConfig } from 'firebase/remote-config';
 import { environment } from '../../environments/environment';
 
@@ -11,10 +11,8 @@ export class FirebaseService {
   private remoteConfig: RemoteConfig;
 
   constructor() {
-    this.app = initializeApp(environment.firebase);
+    this.app = getApps().length ? getApp() : initializeApp(environment.firebase);
     this.remoteConfig = getRemoteConfig(this.app);
-    
-    // Setting minimum fetch interval to 1 minute for the admin hub
     this.remoteConfig.settings.minimumFetchIntervalMillis = 60000;
   }
 

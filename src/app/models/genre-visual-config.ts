@@ -5,6 +5,8 @@ export interface GenreVisualConfig {
   cornerSizeDp: number;
   backgroundUrl: string;
   imageUrl: string;
+  headerFontUrl?: string;
+  bodyFontUrl?: string;
   vibrationPattern: number[];
   selectiveHighlight?: SelectiveHighlightConfig;
   shaderParams?: ShaderParamsConfig;
